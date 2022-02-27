@@ -1,0 +1,17 @@
+CREATE TABLE Account (
+  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  login TEXT NOT NULL UNIQUE,
+  password TEXT NOT NULL
+);
+
+insertAccount:
+INSERT OR IGNORE INTO Account (login, password) VALUES (?, ?);
+
+deleteAllAccounts:
+DELETE FROM Account;
+
+selectAllAccounts:
+SELECT * FROM Account;
+
+selectAccountByLogin:
+SELECT * FROM Account WHERE login = ?;

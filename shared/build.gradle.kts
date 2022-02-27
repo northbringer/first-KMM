@@ -1,6 +1,7 @@
 plugins {
     kotlin("multiplatform")
     id("com.android.library")
+    id("com.squareup.sqldelight")
 }
 
 kotlin {
@@ -16,15 +17,49 @@ kotlin {
         }
     }
 
+    val ktorVersion = "1.5.0"
+    val coroutinesVersion = "1.4.2-native-mt"
+    val serializationVersion = "1.0.1"
+    val sqlDelightVersion = "1.4.4"
+
     sourceSets {
-        val commonMain by getting
+        val commonMain by getting {
+            dependencies {
+                api("org.jetbrains.kotlinx:kotlinx-serialization-core:${serializationVersion}")
+
+                // HTTP
+                implementation("io.ktor:ktor-client-core:${ktorVersion}")
+                implementation("io.ktor:ktor-client-json:${ktorVersion}")
+                implementation("io.ktor:ktor-client-serialization:${ktorVersion}")
+                implementation("io.ktor:ktor-client-logging:$ktorVersion")
+
+                // SQLDelight
+                implementation("com.squareup.sqldelight:runtime:$sqlDelightVersion")
+
+                // Coroutines
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${coroutinesVersion}")
+                implementation("com.squareup.sqldelight:coroutines-extensions:${sqlDelightVersion}")
+
+                // DI
+                //implementation("org.kodein.di:kodein-di:7.1.0")
+            }
+        }
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test-common"))
                 implementation(kotlin("test-annotations-common"))
             }
         }
-        val androidMain by getting
+        val androidMain by getting {
+            dependencies {
+                implementation("com.google.android.material:material:1.2.1")
+                implementation("com.squareup.sqldelight:android-driver:$sqlDelightVersion")
+
+                api("io.ktor:ktor-client-okhttp:${ktorVersion}")
+                api("org.jetbrains.kotlinx:kotlinx-coroutines-android:${coroutinesVersion}")
+                api("com.squareup.sqldelight:android-driver:${sqlDelightVersion}")
+            }
+        }
         val androidTest by getting {
             dependencies {
                 implementation(kotlin("test-junit"))
@@ -39,6 +74,10 @@ kotlin {
             iosX64Main.dependsOn(this)
             iosArm64Main.dependsOn(this)
             //iosSimulatorArm64Main.dependsOn(this)
+
+            dependencies {
+                implementation("com.squareup.sqldelight:native-driver:$sqlDelightVersion")
+            }
         }
         val iosX64Test by getting
         val iosArm64Test by getting
@@ -58,5 +97,12 @@ android {
     defaultConfig {
         minSdk = 21
         targetSdk = 31
+    }
+}
+
+sqldelight {
+    database("AppDatabase") {
+        packageName = "ru.northbringer.firstkmm.db"
+        sourceFolders = listOf("sqldelight")
     }
 }
